@@ -95,7 +95,7 @@ namespace Linq2023
         static void IntroToLINQ()
         {
             int[] numbers = new int[7] { 0, 1, 2, 3, 4, 5, 6 };
-
+            /*
             var numQuery =
                 from num in numbers
                 where (num % 2 == 0)
@@ -105,10 +105,14 @@ namespace Linq2023
             {
                 Console.Write("{0,1} ", num);
             }
+            */
+            var numPares = numbers.Where(x=>x % 2 == 0).ToList();
+            foreach (var par in numPares) {  Console.WriteLine(par); }
         }
 
         static void DataSource()
         {
+            /*
             var queryAllCustomers = from cust in context.clientes
                                     select cust;
 
@@ -116,10 +120,18 @@ namespace Linq2023
             {
                 Console.WriteLine(item.NombreCompañia);
             }
+            */
+
+            var queryAllCustomers = context.clientes;
+            foreach (var item in queryAllCustomers) 
+            {
+                Console.WriteLine(item.NombreCompañia);
+            }
         }
 
         static void Filtering()
         {
+            /*
             var queryLondonCustomers = from cust in context.clientes
                                        where cust.Ciudad == "Londres"
                                        select cust;
@@ -127,10 +139,17 @@ namespace Linq2023
             {
                 Console.WriteLine(item.Ciudad);
             }
+            */
+            var queryLondonCustomers = context.clientes.Where(x=>x.Ciudad=="Londres").ToList();
+            foreach ( var item in queryLondonCustomers)
+            {
+                Console.WriteLine(item.Ciudad);
+            }
         }
 
         static void Ordering()
         {
+            /*
             var queryLondonCustomers3 =
                 from cust in context.clientes
                 where cust.Ciudad == "London"
@@ -141,10 +160,17 @@ namespace Linq2023
             {
                 Console.WriteLine(item.NombreCompañia);
             }
+            */
+            var queryLondonCustomers3 = context.clientes.Where(x=>x.Ciudad == "London").OrderBy(x=>x.NombreCompañia).ToList();
+            foreach (var item in queryLondonCustomers3)
+            {
+                Console.WriteLine(item.NombreCompañia);
+            }
         }
 
         static void Grouping()
         {
+            /*
             var queryCustomerByCity =
                 from cust in context.clientes
                 group cust by cust.Ciudad;
@@ -157,10 +183,21 @@ namespace Linq2023
                     Console.WriteLine("  {0}", customer.NombreCompañia);
                 }
             }
+            */
+            var queryCustomerByCity = context.clientes.GroupBy(x=>x.Ciudad).ToList();
+            foreach (var customerGroup in queryCustomerByCity)
+            {
+                Console.WriteLine(customerGroup.Key);
+                foreach (clientes customer in customerGroup)
+                {
+                    Console.WriteLine("  {0}", customer.NombreCompañia);
+                }
+            }
         }
 
         static void Grouping2()
         {
+            /*
             var custQuery =
                 from cust in context.clientes
                 group cust by cust.Ciudad into custGroup
@@ -172,10 +209,18 @@ namespace Linq2023
             {
                 Console.WriteLine(item.Key);            
             }
+            */
+            var custQuery = context.clientes.GroupBy(x=> x.Ciudad);
+            var custGroup = custQuery.Where(x=>x.Count() > 2).OrderBy(x=>x.Key).ToList();
+            foreach (var item in custGroup)
+            {
+                Console.WriteLine(item.Key);
+            }
         }
 
         static void Joining()
         {
+            /*
             var innerJoinQuery =
                 from cust in context.clientes
                 join dist in context.Pedidos on cust.idCliente equals dist.IdCliente
@@ -185,6 +230,22 @@ namespace Linq2023
                     DistributorName = dist.PaisDestinatario
                 };
             foreach(var item in innerJoinQuery)
+            {
+                Console.WriteLine(item.CustomerName);
+            }
+            */
+            
+            var innerJoinQuery = context.clientes
+                .Join(context.Pedidos,
+                cliente => cliente.idCliente,
+                pedido => pedido.IdCliente,
+                (cliente,pedido) => new 
+                {
+                    CustomerName = cliente.NombreCompañia,
+                    DistributorName = pedido.PaisDestinatario
+                }
+                ).ToList();
+            foreach (var item in innerJoinQuery)
             {
                 Console.WriteLine(item.CustomerName);
             }
